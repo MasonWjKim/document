@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>문서 생성</title>
+</head>
+<body>
+    <label for="title">제목 : </label><input type="text" id="title"> <br>
+    <label for="title">분류 : </label><input type="text" id="classification"> <br>
+    <label for="title">내용 : </label><input type="text" id="content"> <br>
+    <div id="approvers">
+        <h2>결재자</h2><button id="approveBtn">결재자 생성</button>
+    </div>
+    <button id="createBtn">문서 생성</button>
+</body>
+<script>
+    const approveBtn = document.querySelector('#approveBtn');
+    const approvers = document.querySelector('#approvers');
+    let count = 0;
+
+    approveBtn.addEventListener("click", function() {
+        if (count === 2) {
+            alert("결재자는 2명까지 생성 가능합니다.");
+            return;
+        }
+        count++;
+        const input = document.createElement('input');
+        input.setAttribute('type', 'text');
+        input.setAttribute('placeholder', '결재자 이름');
+        input.setAttribute('id', 'approver' + count);
+        approvers.appendChild(input);
+
+    });
+
+    const createBtn = document.querySelector('#createBtn');
+    createBtn.addEventListener('click', () => {
+        const title = document.querySelector('#title').value;
+        const classification = document.querySelector('#classification').value;
+        const content = document.querySelector('#content').value;
+        const approvers = [];
+
+        for (let i = 1; i <= count; i++) {
+            const approver = document.querySelector('#approver' + i).value;
+            approvers.push(approver);
+        }
+
+        fetch('/document/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title,
+                classification,
+                content,
+                approvers
+            })
+        }).then(response => {
+            if (response.ok) {
+                alert("문서 생성 성공");
+                location.href = "/";
+            } else {
+                alert("문서 생성 실패");
+            }
+        })
+    });
+</script>
+</html>

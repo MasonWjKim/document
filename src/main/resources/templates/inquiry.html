@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>문서 조회</title>
+</head>
+<body>
+    <div id="list">
+
+    </div>
+    <a href="/">홈으로</a>
+</body>
+<script>
+    window.onload = function () {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const type = urlParams.get('type');
+        const url = `/document/list?key=${type}`;
+        fetch(url)
+            .then(response => response.json())
+            .then(json => {
+                const list = json.response;
+                document.querySelector('#list').innerHTML = list.map(item => {
+                    return `<li>
+                        <input type="hidden" name="id" value="${item.id}">
+                        제목 : ${item.title} <br>
+                        분류 : ${item.classification} <br>
+                        작성자 : ${item.writer} <br>
+                        내용 : ${item.content}
+                        <button id="approve">승인</button>
+                        <button id="reject">거부</button>
+                    </li>`;
+                }).join('');
+            })
+            .then(() => {
+                document.querySelectorAll('#approve').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const url = `/document/approve`;
+                        fetch(url, {
+                            method: 'PUT',
+                            body: JSON.stringify({
+                                id: item.parentNode.querySelector('input[name="id"]').value
+                            }),
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                            .then(response => response.json())
+                            .then(json => {
+                                if (json.status === 200) {
+                                    alert('결재 완료');
+                                    location.reload();
+                                } else {
+                                    alert(`결재 실패 => ${json.error.message}`);
+                                }
+                            })
+                    })
+                });
+                document.querySelectorAll('#reject').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const url = `/document/reject`;
+                        fetch(url, {
+                            method: 'PUT',
+                            body: JSON.stringify({
+                                id: item.parentNode.querySelector('input[name="id"]').value
+                            }),
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                            .then(response => response.json())
+                            .then(json => {
+                                if (json.status === 200) {
+                                    alert('거부 완료');
+                                    location.reload();
+                                } else {
+                                    alert(`거부 실패 => ${json.error.message}`);
+                                }
+                            })
+                    })
+                });
+            }
+            );
+    }
+</script>
+</html>

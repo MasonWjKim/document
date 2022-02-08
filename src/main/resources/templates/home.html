@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>home</title>
+</head>
+<body>
+    <h1>Home</h1>
+    <p>
+        <button id="createBtn">문서 생성</button>
+    </p>
+    <p>
+        <button id="inquiryBtn">문서 조회</button> <br>
+        <label for="selection">옵션</label><select id="selection">
+            <option value="OUTBOX">내가 생성한 문서 중 결재 진행중인 문서</option>
+            <option value="INBOX">내가 결재를 해야 할 문서</option>
+            <option value="ARCHIVE">내가 관여한 문서 중 결재가 완료(승인 또는 거절)된 문서</option>
+        </select>
+    </p>
+    <div th:if="${#authorization.expr('isAuthenticated()')}">
+        <h2 th:text="${#authentication.name}">Name</h2>
+        <a href="/logout" th:href="@{/logout}">로그아웃</a>
+    </div>
+    <div th:unless="${#authorization.expr('isAuthenticated()')}">
+        <a href="/login" th:href="@{/login}">로그인</a>
+    </div>
+</body>
+<script>
+    const createBtn = document.querySelector('#createBtn');
+    const inquiryBtn = document.querySelector('#inquiryBtn');
+
+    createBtn.addEventListener("click", function() {
+        location.href = "/createForm";
+    });
+
+    inquiryBtn.addEventListener("click", function() {
+        location.href = "/inquiry?type=" + document.querySelector('#selection').value;
+    });
+
+</script>
+</html>
